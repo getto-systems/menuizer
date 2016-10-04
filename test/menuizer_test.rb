@@ -14,7 +14,10 @@ class MenuizerTest < Minitest::Test
 
   def _to_h(item)
     h = item.to_h
-    h.delete!(:parent)
+    h.delete(:parent)
+    if h[:children]
+      h[:children] = h[:children].map{|i| _to_h(i)}
+    end
     h
   end
 
@@ -58,20 +61,36 @@ class MenuizerTest < Minitest::Test
   end
   def test_activate
     Menuizer.menu.activate "nested items"
-    expected = {type: :item, title: "nested items", path: :path_to_somewhere_path}
+    expected = {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true}
     assert_equal expected, _to_h(Menuizer.menu.active_item)
 
     expected = [
-      {type: :item, title: "nested items", path: :path_to_somewhere_path},
+      {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true},
       {type: :tree, title: "nested menu", children: [
-        {type: :item, title: "nested items", path: :path_to_somewhere_path},
-      ]},
+        {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true},
+      ], is_active: true},
       {type: :tree, title: "tree menu", children: [
         {type: :tree, title: "nested menu", children: [
-          {type: :item, title: "nested items", path: :path_to_somewhere_path},
-        ]},
-      ]},
+          {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true},
+        ], is_active: true},
+      ], is_active: true},
     ]
-    assert_equal expected, Menuizer.menu.active_items..map{|i| _to_h(i)}
+    assert_equal expected, Menuizer.menu.active_items.map{|i| _to_h(i)}
+  end
+
+  def test_namespace
+    Menuizer.configure(:namespace) do |menu|
+      menu.item Widget
+    end
+    assert_kind_of Menuizer::Menu, Menuizer.menu
+    assert_kind_of Menuizer::Menu, Menuizer.menu(:namespace)
+    assert_equal Menuizer.menu, Menuizer.menu
+    assert_equal Menuizer.menu(:namespace), Menuizer.menu(:namespace)
+    refute_equal Menuizer.menu, Menuizer.menu(:namespace)
+
+    expected = [
+      {type: :item, title: "Widget", path: :namespace_widgets_path},
+    ]
+    assert_equal expected, Menuizer.menu(:namespace).items.map{|i| _to_h(i)}
   end
 end
