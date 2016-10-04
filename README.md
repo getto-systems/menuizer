@@ -39,7 +39,7 @@ Menuizer.configure do |menu|
     ]
 
     menu.item "nested" do
-      menu.item "more nested menus", path: :path_to_somewhere_path, icon: "fa fa-circle-o"
+      menu.item "nested item", path: :path_to_somewhere_path, icon: "fa fa-circle-o"
     end
   end
 end
