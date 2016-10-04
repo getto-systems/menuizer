@@ -3,7 +3,7 @@ require 'test_helper'
 class MenuizerTest < Minitest::Test
   class Widget
     def self.model_name
-      OpenStruct.new(human: "Widget", plural: "widgets")
+      OpenStruct.new(human: "human Widget name", plural: "widgets")
     end
   end
   class User
@@ -50,7 +50,7 @@ class MenuizerTest < Minitest::Test
         {type: :item, title: "Dashboard v1", path: nil},
         {type: :item, title: "Dashboard v2", path: nil},
       ]},
-      {type: :item, title: "Widget", path: :widgets_path, icon: "fa fa-th"},
+      {type: :item, title: "human Widget name", path: :widgets_path, icon: "fa fa-th"},
       {type: :tree, title: "tree menu", children: [
         {type: :tree, title: "nested menu", children: [
           {type: :item, title: "nested items", path: :path_to_somewhere_path},
@@ -89,7 +89,7 @@ class MenuizerTest < Minitest::Test
     refute_equal Menuizer.menu, Menuizer.menu(:namespace)
 
     expected = [
-      {type: :item, title: "Widget", path: :namespace_widgets_path},
+      {type: :item, title: "human Widget name", path: :namespace_widgets_path},
     ]
     assert_equal expected, Menuizer.menu(:namespace).items.map{|i| _to_h(i)}
   end
