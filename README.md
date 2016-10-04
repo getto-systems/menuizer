@@ -139,7 +139,7 @@ menu.item(
 
 ## Multiple namespaces
 
-if your rails application has multiple namespace, and required multiple menues, pass `:namespace` to Menuizer methods.
+if your rails application has multiple namespaces, and required multiple menues, pass `:namespace` to Menuizer methods.
 
 ```ruby
 # config/initializers/menuizer.rb
