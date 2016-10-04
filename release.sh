@@ -1,1 +1,2 @@
-git tag v$(cat version.txt) && git push origin --tags
+#!/bin/bash
+git tag v$(cat ../version.txt) && git push origin --tags
