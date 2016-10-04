@@ -1,5 +1,7 @@
 # Menuizer
 
+[![Build Status](https://travis-ci.org/getto-systems/menuizer.svg?branch=master)](https://travis-ci.org/getto-systems/menuizer)
+
 build menu items for admin page ( like AdminLTE )
 
 ## Installation
