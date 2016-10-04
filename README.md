@@ -1,6 +1,7 @@
 # Menuizer
 
 [![Build Status](https://travis-ci.org/getto-systems/menuizer.svg?branch=master)](https://travis-ci.org/getto-systems/menuizer)
+[![Gem Version](https://badge.fury.io/rb/menuizer.svg)](https://badge.fury.io/rb/menuizer)
 
 build menu items for admin page ( like AdminLTE )
 

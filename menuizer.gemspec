@@ -8,6 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Menuizer::VERSION
   spec.authors       = ["shun"]
   spec.email         = ["shun@getto.systems"]
+  spec.licenses      = ["MIT"]
 
   spec.summary       = %q{build menu items for admin page}
   spec.description   = %q{build menu items for admin page ( like AdminLTE )}
