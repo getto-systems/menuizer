@@ -80,21 +80,4 @@ class Menuizer::Menu
     def map
       @map ||= {}
     end
-
-    def to_title(title)
-      if title.respond_to?(:model_name)
-        title.model_name.human
-      else
-        title
-      end
-    end
-    def to_path(path:, title:)
-      if path
-        path
-      else
-        if title.respond_to?(:model_name)
-          :"#{@namespace}#{title.model_name.plural}_path"
-        end
-      end
-    end
 end
