@@ -28,6 +28,7 @@ read -p "dump version: $version. OK? [Y/n] " confirm
 case $confirm in
   Y*|y*)
     echo $version > $version_file
+    git add $version_file && git commit -m "version dump: $version"
     ;;
   *)
     exit 1

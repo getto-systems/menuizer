@@ -29,32 +29,38 @@ class Menuizer::Menu
 
 
   def header(title)
-    current << OpenStruct.new(
+    current << Item.new({
       type: :header,
+    },{
+      namespace: @namespace,
       title: title,
-    )
+    })
   end
   def item(title, path: nil, **opts)
     unless block_given?
-      item = OpenStruct.new(
+      item = Item.new({
         type: :item,
-        title: to_title(title),
-        path: to_path(path: path, title: title),
         parent: @parent,
         **opts,
-      )
+      },{
+        namespace: @namespace,
+        title: title,
+        path: path,
+      })
       map[title] = item
       current << item
     else
       owner = @parent
       parents = @current
-      item = @parent = OpenStruct.new(
+      item = @parent = Item.new({
         type: :tree,
-        title: to_title(title),
         children: [],
         parent: owner,
         **opts,
-      )
+      },{
+        namespace: @namespace,
+        title: title,
+      })
       @current = item.children
       yield
       children, @current, @parent = @current, parents, owner

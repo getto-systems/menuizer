@@ -6,15 +6,19 @@ class MenuizerTest < Minitest::Test
       OpenStruct.new(human: "human Widget name", plural: "widgets")
     end
   end
-  class User
-    def self.model_name
-      OpenStruct.new(human: "Widget", plural: "widgets")
-    end
-  end
 
   def _to_h(item)
     h = item.to_h
+    h.delete(:_namespace)
+    h.delete(:_title)
+    h.delete(:_path)
     h.delete(:parent)
+    if title = item.title
+      h[:title] = title
+    end
+    if path = item.path
+      h[:path] = path
+    end
     if h[:children]
       h[:children] = h[:children].map{|i| _to_h(i)}
     end
@@ -47,8 +51,8 @@ class MenuizerTest < Minitest::Test
     expected = [
       {type: :header, title: "MAIN NAVIGATION"},
       {type: :tree, title: "Dashboard", children: [
-        {type: :item, title: "Dashboard v1", path: nil},
-        {type: :item, title: "Dashboard v2", path: nil},
+        {type: :item, title: "Dashboard v1"},
+        {type: :item, title: "Dashboard v2"},
       ]},
       {type: :item, title: "human Widget name", path: :widgets_path, icon: "fa fa-th"},
       {type: :tree, title: "tree menu", children: [
