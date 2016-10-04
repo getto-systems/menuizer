@@ -126,6 +126,12 @@ menu.item(
 )
 ```
 
+#### `title` converting
+
+* convert `title.model_name.human` if title respond to `model_name`
+* or, leave `title`
+
+
 #### `path` converting
 
 * convert `:"#{title.model_name.plural}_path"` if title respond to `model_name`
