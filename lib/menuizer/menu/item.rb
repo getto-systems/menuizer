@@ -16,7 +16,7 @@ class Menuizer::Menu::Item < OpenStruct
       @opts[:path]
     else
       if @opts[:title].respond_to?(:model_name) && @opts[:title].model_name.respond_to?(:plural)
-        :"#{@opts[:namespace]}#{@opts[:title].model_name.plural}_path"
+        :"#{@opts[:namespace]}#{@opts[:title].model_name.plural}"
       end
     end
   end

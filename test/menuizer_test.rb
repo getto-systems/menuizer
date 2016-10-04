@@ -9,9 +9,6 @@ class MenuizerTest < Minitest::Test
 
   def _to_h(item)
     h = item.to_h
-    h.delete(:_namespace)
-    h.delete(:_title)
-    h.delete(:_path)
     h.delete(:parent)
     if title = item.title
       h[:title] = title
@@ -37,7 +34,7 @@ class MenuizerTest < Minitest::Test
 
       menu.item "tree menu" do
         menu.item "nested menu" do
-          menu.item "nested items", path: :path_to_somewhere_path
+          menu.item "nested items", path: :path_to_somewhere
         end
       end
     end
@@ -54,10 +51,10 @@ class MenuizerTest < Minitest::Test
         {type: :item, title: "Dashboard v1"},
         {type: :item, title: "Dashboard v2"},
       ]},
-      {type: :item, title: "human Widget name", path: :widgets_path, icon: "fa fa-th"},
+      {type: :item, title: "human Widget name", path: :widgets, icon: "fa fa-th"},
       {type: :tree, title: "tree menu", children: [
         {type: :tree, title: "nested menu", children: [
-          {type: :item, title: "nested items", path: :path_to_somewhere_path},
+          {type: :item, title: "nested items", path: :path_to_somewhere},
         ]},
       ]},
     ]
@@ -65,17 +62,17 @@ class MenuizerTest < Minitest::Test
   end
   def test_activate
     Menuizer.menu.activate "nested items"
-    expected = {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true}
+    expected = {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true}
     assert_equal expected, _to_h(Menuizer.menu.active_item)
 
     expected = [
-      {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true},
+      {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
       {type: :tree, title: "nested menu", children: [
-        {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true},
+        {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
       ], is_active: true},
       {type: :tree, title: "tree menu", children: [
         {type: :tree, title: "nested menu", children: [
-          {type: :item, title: "nested items", path: :path_to_somewhere_path, is_active: true},
+          {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
         ], is_active: true},
       ], is_active: true},
     ]
@@ -93,7 +90,7 @@ class MenuizerTest < Minitest::Test
     refute_equal Menuizer.menu, Menuizer.menu(:namespace)
 
     expected = [
-      {type: :item, title: "human Widget name", path: :namespace_widgets_path},
+      {type: :item, title: "human Widget name", path: :namespace_widgets},
     ]
     assert_equal expected, Menuizer.menu(:namespace).items.map{|i| _to_h(i)}
   end

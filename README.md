@@ -42,7 +42,7 @@ Menuizer.configure do |menu|
     ]
 
     menu.item "nested" do
-      menu.item "nested item", path: :path_to_somewhere_path, icon: "fa fa-circle-o"
+      menu.item "nested item", path: :path_to_somewhere, icon: "fa fa-circle-o"
     end
   end
 end
@@ -137,8 +137,12 @@ menu.item(
 
 #### `path` converting
 
-* convert `:"#{title.model_name.plural}_path"` if title respond to `model_name`
+* convert `:"#{namespace}#{title.model_name.plural}"` if title respond to `model_name`
 * or, leave `nil`
+
+**what namespace is?**
+
+↓↓↓
 
 ## Multiple namespaces
 
