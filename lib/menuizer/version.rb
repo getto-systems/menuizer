@@ -1,3 +1,3 @@
 module Menuizer
-  VERSION = "0.1.3"
+  VERSION = File.read(File.expand_path("../../../version.txt",__FILE__))
 end
