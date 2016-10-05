@@ -50,7 +50,7 @@ end
 
 ```erb
 <%# app/views/admins/index.html.erb %>
-<% @active_menu = Admin # first argument of menu.item %>
+<% Menuizer.menu.activate Admin # first argument of menu.item %>
 <% content_for :title do %><%= Menuizer.menu.active_item.title %><% end %>
 
 ...
@@ -64,7 +64,6 @@ end
 
 ```erb
 <%# app/views/layouts/application.html.erb %>
-<% Menuizer.menu.activate @active_menu %>
 <title><%= yield :title %></title>
 
 ...
@@ -157,7 +156,7 @@ end
 
 ```erb
 <%# app/views/admins/index.html.erb %>
-<% @active_menu = Admin # first argument of menu.item %>
+<% Menuizer.menu(:namespace).activate Admin # first argument of menu.item %>
 <% content_for :title do %><%= Menuizer.menu(:namespace).active_item.title %><% end %>
 
 ...
@@ -171,7 +170,6 @@ end
 
 ```erb
 <%# app/views/layouts/application.html.erb %>
-<% Menuizer.menu(:namespace).activate @active_menu %>
 <title><%= yield :title %></title>
 
 ...
