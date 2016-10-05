@@ -183,12 +183,12 @@ end
 </ul>
 ```
 
-## extend Item
+## set converter methods
 
 ```ruby
-class Menuizer::Menu::Item
-  def icon
-    icon = @opts[:icon]
+# config/initializers/menuizer.rb
+Menuizer.configure(:namespace) do |menu|
+  menu.set_converter :icon do |icon,opts|
     case
     when icon.blank? || icon.starts_with?("fa") then icon
     when icon then "fa fa-#{icon.to_s.gsub("_","-")}"
@@ -199,7 +199,7 @@ class Menuizer::Menu::Item
 end
 ```
 
-original key-values set in `@opts`
+second argument `opts` : original key-value hash
 
 ## Development
 

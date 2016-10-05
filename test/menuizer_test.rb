@@ -7,7 +7,7 @@ class MenuizerTest < Minitest::Test
     end
   end
 
-  def _to_h(item)
+  def _to_h(item,converters=[])
     h = item.to_h
     h.delete(:parent)
     h.delete(:namespace)
@@ -18,6 +18,12 @@ class MenuizerTest < Minitest::Test
     end
     if path = item.path
       h[:path] = path
+    end
+    converters.each do |key|
+      h.delete(key)
+      if value = item.send(key)
+        h[key] = value
+      end
     end
     if h[:children]
       h[:children] = h[:children].map{|i| _to_h(i)}
@@ -84,17 +90,27 @@ class MenuizerTest < Minitest::Test
 
   def test_namespace
     Menuizer.configure(:namespace) do |menu|
+      menu.set_converter :icon do|icon,opts|
+        case
+        when !icon then "fa fa-circle-o"
+        else "fa fa-#{icon.to_s.gsub("_","-")}"
+        end
+      end
+
       menu.item Widget
+      menu.item "menu", icon: :enverope
     end
     assert_kind_of Menuizer::Menu, Menuizer.menu
     assert_kind_of Menuizer::Menu, Menuizer.menu(:namespace)
+    assert_kind_of Menuizer::Menu::Item_namespace, Menuizer.menu(:namespace).items.first
     assert_equal Menuizer.menu, Menuizer.menu
     assert_equal Menuizer.menu(:namespace), Menuizer.menu(:namespace)
     refute_equal Menuizer.menu, Menuizer.menu(:namespace)
 
     expected = [
-      {type: :item, title: "human Widget name", path: :namespace_widgets},
+      {type: :item, title: "human Widget name", path: :namespace_widgets, icon: "fa fa-circle-o"},
+      {type: :item, title: "menu", icon: "fa fa-enverope"},
     ]
-    assert_equal expected, Menuizer.menu(:namespace).items.map{|i| _to_h(i)}
+    assert_equal expected, Menuizer.menu(:namespace).items.map{|i| _to_h(i,[:icon])}
   end
 end

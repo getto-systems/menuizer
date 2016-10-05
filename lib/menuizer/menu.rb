@@ -1,6 +1,12 @@
 class Menuizer::Menu
   def initialize(namespace)
-    @namespace = namespace ? "#{namespace}_" : nil
+    if namespace
+      @namespace = "#{namespace}_"
+      @item_class = self.class.const_set(:"Item_#{namespace}", Class.new(Item))
+    else
+      @namespace = nil
+      @item_class = Item
+    end
   end
 
   def activate(key)
@@ -27,37 +33,45 @@ class Menuizer::Menu
     result.reverse
   end
 
+  def set_converter(key,&block)
+    @item_class.class_eval do
+      define_method key do
+        block.call @opts[key], @opts
+      end
+    end
+  end
+
 
   def header(title)
-    current << Item.new({
+    current << @item_class.new(
       type: :header,
       namespace: @namespace,
       title: title,
-    })
+    )
   end
   def item(title, path: nil, **opts)
     unless block_given?
-      item = Item.new({
+      item = @item_class.new(
         type: :item,
         parent: @parent,
         namespace: @namespace,
         title: title,
         path: path,
         **opts,
-      })
+      )
       map[title] = item
       current << item
     else
       owner = @parent
       parents = @current
-      item = @parent = Item.new({
+      item = @parent = @item_class.new(
         type: :tree,
         children: [],
         parent: owner,
         namespace: @namespace,
         title: title,
         **opts,
-      })
+      )
       @current = item.children
       yield
       children, @current, @parent = @current, parents, owner
