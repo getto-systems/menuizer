@@ -24,14 +24,13 @@ class Menuizer::Menu
       result << item
       item = item.parent
     end
-    result
+    result.reverse
   end
 
 
   def header(title)
     current << Item.new({
       type: :header,
-    },{
       namespace: @namespace,
       title: title,
     })
@@ -41,11 +40,10 @@ class Menuizer::Menu
       item = Item.new({
         type: :item,
         parent: @parent,
-        **opts,
-      },{
         namespace: @namespace,
         title: title,
         path: path,
+        **opts,
       })
       map[title] = item
       current << item
@@ -56,10 +54,9 @@ class Menuizer::Menu
         type: :tree,
         children: [],
         parent: owner,
-        **opts,
-      },{
         namespace: @namespace,
         title: title,
+        **opts,
       })
       @current = item.children
       yield

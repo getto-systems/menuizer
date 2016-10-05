@@ -10,6 +10,9 @@ class MenuizerTest < Minitest::Test
   def _to_h(item)
     h = item.to_h
     h.delete(:parent)
+    h.delete(:namespace)
+    h.delete(:title)
+    h.delete(:path)
     if title = item.title
       h[:title] = title
     end
@@ -66,15 +69,15 @@ class MenuizerTest < Minitest::Test
     assert_equal expected, _to_h(Menuizer.menu.active_item)
 
     expected = [
-      {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
-      {type: :tree, title: "nested menu", children: [
-        {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
-      ], is_active: true},
       {type: :tree, title: "tree menu", children: [
         {type: :tree, title: "nested menu", children: [
           {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
         ], is_active: true},
       ], is_active: true},
+      {type: :tree, title: "nested menu", children: [
+        {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
+      ], is_active: true},
+      {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
     ]
     assert_equal expected, Menuizer.menu.active_items.map{|i| _to_h(i)}
   end
