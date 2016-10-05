@@ -183,6 +183,24 @@ end
 </ul>
 ```
 
+## extend Item
+
+```ruby
+class Menuizer::Menu::Item
+  def icon
+    icon = @opts[:icon]
+    case
+    when icon.blank? || icon.starts_with?("fa") then icon
+    when icon then "fa fa-#{icon.to_s.gsub("_","-")}"
+    else
+      "fa fa-circle-o"
+    end
+  end
+end
+```
+
+original key-values set in `@opts`
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
