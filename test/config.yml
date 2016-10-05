@@ -1,0 +1,13 @@
+- header: MAIN NAVIGATION
+- item: "Dashboard"
+  children:
+    - item: "Dashboard v1"
+    - item: "Dashboard v2"
+- item: :MenuizerTest::Widget
+  icon: fa fa-th
+- item: tree menu
+  children:
+    - item: nested menu
+      children:
+        - item: nested items
+          path: :path_to_somewhere

@@ -8,9 +8,11 @@ class MenuizerTest < Minitest::Test
   end
 
   def _to_h(item,converters=[])
+    return unless item
     h = item.to_h
     h.delete(:parent)
     h.delete(:namespace)
+    h.delete(:model)
     h.delete(:title)
     h.delete(:path)
     if title = item.title
@@ -25,27 +27,16 @@ class MenuizerTest < Minitest::Test
         h[key] = value
       end
     end
-    if h[:children]
-      h[:children] = h[:children].map{|i| _to_h(i)}
+    if children = h.delete(:children)
+      h[:children] = children.map{|i| _to_h(i)}
     end
     h
   end
 
   def setup
-    Menuizer.configure do |menu|
-      menu.header "MAIN NAVIGATION"
-      menu.item "Dashboard" do
-        menu.item "Dashboard v1"
-        menu.item "Dashboard v2"
-      end
-
-      menu.item Widget, icon: "fa fa-th"
-
-      menu.item "tree menu" do
-        menu.item "nested menu" do
-          menu.item "nested items", path: :path_to_somewhere
-        end
-      end
+    Menuizer.send(:config).clear
+    Menuizer.configure do |config|
+      config.file_path = File.expand_path("../config.yml", __FILE__)
     end
   end
 
@@ -54,25 +45,27 @@ class MenuizerTest < Minitest::Test
   end
 
   def test_build_menues
+    menu = Menuizer.menu
     expected = [
       {type: :header, title: "MAIN NAVIGATION"},
       {type: :tree, title: "Dashboard", children: [
         {type: :item, title: "Dashboard v1"},
         {type: :item, title: "Dashboard v2"},
       ]},
-      {type: :item, title: "human Widget name", path: :widgets, icon: "fa fa-th"},
+      {type: :item, icon: "fa fa-th", title: "human Widget name", path: :widgets},
       {type: :tree, title: "tree menu", children: [
         {type: :tree, title: "nested menu", children: [
           {type: :item, title: "nested items", path: :path_to_somewhere},
         ]},
       ]},
     ]
-    assert_equal expected, Menuizer.menu.items.map{|i| _to_h(i)}
+    assert_equal expected, menu.items.map{|i| _to_h(i)}
   end
   def test_activate
-    Menuizer.menu.activate "nested items"
+    menu = Menuizer.menu
+    menu.activate "nested items"
     expected = {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true}
-    assert_equal expected, _to_h(Menuizer.menu.active_item)
+    assert_equal expected, _to_h(menu.active_item)
 
     expected = [
       {type: :tree, title: "tree menu", children: [
@@ -85,27 +78,24 @@ class MenuizerTest < Minitest::Test
       ], is_active: true},
       {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
     ]
-    assert_equal expected, Menuizer.menu.active_items.map{|i| _to_h(i)}
+    assert_equal expected, menu.active_items.map{|i| _to_h(i)}
   end
 
   def test_namespace
-    Menuizer.configure(:namespace) do |menu|
-      menu.set_converter :icon do|icon,opts|
-        case
-        when !icon then "fa fa-circle-o"
-        else "fa fa-#{icon.to_s.gsub("_","-")}"
-        end
-      end
-
-      menu.item Widget
-      menu.item "menu", icon: :enverope
+    Menuizer.configure(:namespace) do |config|
+      config.file_path = File.expand_path("../config/namespace.yml", __FILE__)
+      config.converter = {
+        icon: ->(icon,opts){
+          case
+          when !icon then "fa fa-circle-o"
+          else "fa fa-#{icon}"
+          end
+        },
+      }
     end
     assert_kind_of Menuizer::Menu, Menuizer.menu
     assert_kind_of Menuizer::Menu, Menuizer.menu(:namespace)
     assert_kind_of Menuizer::Menu::Item_namespace, Menuizer.menu(:namespace).items.first
-    assert_equal Menuizer.menu, Menuizer.menu
-    assert_equal Menuizer.menu(:namespace), Menuizer.menu(:namespace)
-    refute_equal Menuizer.menu, Menuizer.menu(:namespace)
 
     expected = [
       {type: :item, title: "human Widget name", path: :namespace_widgets, icon: "fa fa-circle-o"},
