@@ -34,7 +34,6 @@ class MenuizerTest < Minitest::Test
   end
 
   def setup
-    Menuizer.send(:map).clear
     Menuizer.send(:config).clear
     Menuizer.configure do |config|
       config.file_path = File.expand_path("../config.yml", __FILE__)
