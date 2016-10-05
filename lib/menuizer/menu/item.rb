@@ -5,20 +5,18 @@ class Menuizer::Menu::Item < OpenStruct
   end
 
   def title
-    title = @opts[:title]
-    if title.respond_to?(:model_name) && title.model_name.respond_to?(:human)
-      title.model_name.human
+    if model && model.model_name.respond_to?(:human)
+      model.model_name.human
     else
-      title
+      @opts[:title]
     end
   end
   def path
     if path = @opts[:path]
       path
     else
-      title = @opts[:title]
-      if title.respond_to?(:model_name) && title.model_name.respond_to?(:plural)
-        :"#{namespace}#{title.model_name.plural}"
+      if model && model.model_name.respond_to?(:plural)
+        :"#{namespace}#{model.model_name.plural}"
       end
     end
   end

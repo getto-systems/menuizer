@@ -25,38 +25,68 @@ Or install it yourself as:
 
 ```ruby
 # config/initializers/menuizer.rb
-Menuizer.configure do |menu|
-  menu.header "MAIN NAVIGATION"
-  menu.item "Dashboard", icon: "fa fa-dashboard" do
-    menu.item "Dashboard v1", icon: "fa fa-circle-o"
-    menu.item "Dashboard v2", icon: "fa fa-circle-o"
-  end
+Menuizer.configure do |config|
+  config.file_path = Rails.root.join("config/menuizer.yml")
+end
+```
 
-  menu.item Widget, icon: "fa fa-th"
+```yaml
+# config/menuizer.yml
+- header: MAIN NAVIGATION
+- item: Dashboard
+  icon: fa fa-dashboard
+  children: 
+    - item: Dashboard v1
+      icon: fa fa-circle-o
+    - item: Dashboard v2
+      icon: fa fa-circle-o
 
-  menu.item "Settings", icon: "fa fa-cog" do
-    menu.item Admin, icon: "fa fa-circle-o"
-    menu.item User, icon: "fa fa-circle-o", notices: [
-      ->{ [:warning, User.unauthorized.count] },
-      ->{ [:danger, User.wait.count] },
-    ]
+- item: :Widget
+  icon: fa fa-th
 
-    menu.item "nested" do
-      menu.item "nested item", path: :path_to_somewhere, icon: "fa fa-circle-o"
+- item: Settings
+  icon: fa fa-cog
+  children:
+    - item: :Admin
+      icon: fa fa-circle-o
+    - item: :User
+      icon: fa fa-circle-o
+      notice:
+        class: :User
+        method: :main_menu_notices
+
+  - item: nested
+    children:
+      - item: nested item
+        path: :path_to_somewhere
+        icon: fa fa-circle-o
+```
+
+```ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_action :set_menuizer
+
+  private
+
+    def set_menuizer
+      @menuizer = Menuizer.menu
     end
-  end
+    helper_method def menuizer
+      @menuizer
+    end
 end
 ```
 
 ```erb
 <%# app/views/admins/index.html.erb %>
-<% Menuizer.menu.activate Admin # first argument of menu.item %>
-<% content_for :title do %><%= Menuizer.menu.active_item.title %><% end %>
+<% menuizer.activate :Admin # item's value %>
+<% content_for :title do %><%= menuizer.active_item.try(:title) %><% end %>
 
 ...
 
 <ol class="breadcrumb">
-  <% Menuizer.menu.active_items.each do |item| %>
+  <% menuizer.active_items.each do |item| %>
     <li><%= link_to item.path || "#" do %><i class="<%= item.icon %>"></i> <%= item.title %><% end %></li>
   <% end %>
 </ol>
@@ -64,20 +94,18 @@ end
 
 ```erb
 <%# app/views/layouts/application.html.erb %>
-<title><%= yield :title %></title>
-
 ...
-
 <ul class="sidebar-menu">
-  <% Menuizer.menu.items.each do |item| %>
+  <% menuizer.items.each do |item| %>
     <%= render "menu", item: item %>
   <% end %>
 </ul>
+...
 ```
 
 ```erb
 <%
-  item # Menuizer.menu.items's item
+  item # menuizer.items's item
 %>
 <% case item.type %>
 <% when :header %>
@@ -111,32 +139,49 @@ end
 <% end %>
 ```
 
-## API
-
-### menu.item
+## Converters
 
 ```ruby
-menu.item(
-  title,     # required : convert to item.title
-  path: nil, # optional : convert to item.path
-
-  # other keys pass-through to item.*
-  icon: "fa fa-icon",
-  notices: [
-    ->{ [:info, count] },
-  ],
-)
+# config/initializers/menuizer.rb
+Menuizer.configure do |config|
+  config.converter = {
+    icon: ->(icon,opts){
+      case
+      when icon.blank? || icon.starts_with?("fa") then icon
+      when icon then "fa fa-#{icon}"
+      else
+        "fa fa-circle-o"
+      end
+    },
+  }
+end
 ```
 
-#### `title` converting
+```ruby
+menuizer.items.each do |item|
+  item.icon #=> call converter
+end
+```
 
-* convert `title.model_name.human` if title respond to `model_name`
+icon, opts is yaml's original value  
+opts: all key-value hash
+
+
+### convert `model`
+
+* set `:model` key if title is `Symbol` and respond to `model_name` ( ActiveRecord )
+
+
+### convert `title`
+
+* convert `model.model_name.human` if model respond to `model_name.huuman`
 * or, leave `title`
 
 
-#### `path` converting
+### convert `path`
 
-* convert `:"#{namespace}#{title.model_name.plural}"` if title respond to `model_name`
+* leave `path` if not `nil`
+* convert `:"#{namespace}#{model.model_name.plural}"` if title respond to `model_name.plural`
 * or, leave `nil`
 
 **what namespace is?**
@@ -145,59 +190,36 @@ menu.item(
 
 ## Multiple namespaces
 
-if your rails application has multiple namespaces, and required multiple menues, pass `:namespace` to Menuizer methods.
+If your rails application has multiple namespaces, and required multiple menues, pass `:namespace` to Menuizer methods.
 
 ```ruby
 # config/initializers/menuizer.rb
-Menuizer.configure(:namespace) do |menu|
-  ...
+Menuizer.configure(:namespace) do |config|
+  config.file_path = Rails.root.join("config/menuizer/namespace.yml")
 end
 ```
 
-```erb
-<%# app/views/admins/index.html.erb %>
-<% Menuizer.menu(:namespace).activate Admin # first argument of menu.item %>
-<% content_for :title do %><%= Menuizer.menu(:namespace).active_item.title %><% end %>
-
-...
-
-<ol class="breadcrumb">
-  <% Menuizer.menu(:namespace).active_items.each do |item| %>
-    <li><%= link_to item.path || "#" do %><i class="<%= item.icon %>"></i> <%= item.title %><% end %></li>
-  <% end %>
-</ol>
+```yaml
+# config/menuizer/namespace.yml
+- header: NAMESPACE MENU
+- item: :Admin
 ```
-
-```erb
-<%# app/views/layouts/application.html.erb %>
-<title><%= yield :title %></title>
-
-...
-
-<ul class="sidebar-menu">
-  <% Menuizer.menu(:namespace).items.each do |item| %>
-    <%= render "menu", item: item %>
-  <% end %>
-</ul>
-```
-
-## set converter methods
 
 ```ruby
-# config/initializers/menuizer.rb
-Menuizer.configure(:namespace) do |menu|
-  menu.set_converter :icon do |icon,opts|
-    case
-    when icon.blank? || icon.starts_with?("fa") then icon
-    when icon then "fa fa-#{icon.to_s.gsub("_","-")}"
-    else
-      "fa fa-circle-o"
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_action :set_menuizer
+
+  private
+
+    def set_menuizer
+      @menuizer = Menuizer.menu(:namespace)
     end
-  end
+    helper_method def menuizer
+      @menuizer
+    end
 end
 ```
-
-second argument `opts` : original key-value hash
 
 ## Development
 

@@ -10,7 +10,7 @@ fi
 version_file=version.txt
 current_version=$(cat $version_file)
 
-git pull --tags
+git fetch --tags
 current_tag=$(git tag | tail -1)
 
 if [ "v$current_version" != "$current_tag" ]; then
