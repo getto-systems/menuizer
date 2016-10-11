@@ -13,6 +13,11 @@ class Menuizer::Menu::Item < OpenStruct
   end
   def path
     if path = @opts[:path]
+      if path.respond_to?(:unshift)
+        if namespace
+          path.unshift namespace[0..-2].to_sym
+        end
+      end
       path
     else
       if model && model.model_name.respond_to?(:plural)

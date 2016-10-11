@@ -1,3 +1,7 @@
 - item: :MenuizerTest::Widget
 - item: menu
   icon: enverope
+  path:
+    - :path
+    - :to
+    - :enverope
