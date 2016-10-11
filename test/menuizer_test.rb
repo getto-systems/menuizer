@@ -125,6 +125,8 @@ class MenuizerTest < Minitest::Test
       {type: :item, title: "human Widget name", path: :"#{namespace}_widgets", icon: "fa fa-circle-o"},
       {type: :item, title: "menu", path: [namespace,:path,:to,:enverope], icon: "fa fa-enverope"},
     ]
-    assert_equal expected, Menuizer.menu(namespace).items.map{|i| _to_h(i,[:icon])}
+    menu = Menuizer.menu(namespace)
+    assert_equal expected, menu.items.map{|i| _to_h(i,[:icon])}
+    assert_equal expected, menu.items.map{|i| _to_h(i,[:icon])}
   end
 end

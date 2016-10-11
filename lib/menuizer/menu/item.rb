@@ -15,7 +15,7 @@ class Menuizer::Menu::Item < OpenStruct
     if path = @opts[:path]
       if path.respond_to?(:unshift)
         if namespace
-          path.unshift namespace[0..-2].to_sym
+          path = [namespace[0..-2].to_sym,*path]
         end
       end
       path
