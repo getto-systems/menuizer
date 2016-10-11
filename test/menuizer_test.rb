@@ -37,6 +37,16 @@ class MenuizerTest < Minitest::Test
     Menuizer.send(:config).clear
     Menuizer.configure do |config|
       config.file_path = File.expand_path("../config.yml", __FILE__)
+      config.generator = {
+        items: ->{
+          [
+            {item: "items menu item1"},
+            {item: "items menu item2",children:[
+              {item: "items menu item3"},
+            ]},
+          ]
+        }
+      }
     end
   end
 
@@ -57,6 +67,14 @@ class MenuizerTest < Minitest::Test
         {type: :tree, title: "nested menu", children: [
           {type: :item, title: "nested items", path: :path_to_somewhere},
         ]},
+        {type: :item, title: "items menu item1"},
+        {type: :tree, title: "items menu item2", children: [
+          {type: :item, title: "items menu item3"},
+        ]},
+      ]},
+      {type: :item, title: "items menu item1"},
+      {type: :tree, title: "items menu item2", children: [
+        {type: :item, title: "items menu item3"},
       ]},
     ]
     assert_equal expected, menu.items.map{|i| _to_h(i)}
@@ -72,6 +90,10 @@ class MenuizerTest < Minitest::Test
         {type: :tree, title: "nested menu", children: [
           {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
         ], is_active: true},
+        {type: :item, title: "items menu item1"},
+        {type: :tree, title: "items menu item2", children: [
+          {type: :item, title: "items menu item3"},
+        ]},
       ], is_active: true},
       {type: :tree, title: "nested menu", children: [
         {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
@@ -82,7 +104,8 @@ class MenuizerTest < Minitest::Test
   end
 
   def test_namespace
-    Menuizer.configure(:namespace) do |config|
+    namespace = :namespace
+    Menuizer.configure(namespace) do |config|
       config.file_path = File.expand_path("../config/namespace.yml", __FILE__)
       config.converter = {
         icon: ->(icon,opts){
@@ -94,13 +117,14 @@ class MenuizerTest < Minitest::Test
       }
     end
     assert_kind_of Menuizer::Menu, Menuizer.menu
-    assert_kind_of Menuizer::Menu, Menuizer.menu(:namespace)
-    assert_kind_of Menuizer::Menu::Item_namespace, Menuizer.menu(:namespace).items.first
+    assert_kind_of Menuizer::Menu, Menuizer.menu(namespace)
+    assert_kind_of Menuizer::Menu::ItemDefault, Menuizer.menu.items.first
+    assert_kind_of Menuizer::Menu.const_get(:"Item_#{namespace}"), Menuizer.menu(namespace).items.first
 
     expected = [
-      {type: :item, title: "human Widget name", path: :namespace_widgets, icon: "fa fa-circle-o"},
+      {type: :item, title: "human Widget name", path: :"#{namespace}_widgets", icon: "fa fa-circle-o"},
       {type: :item, title: "menu", icon: "fa fa-enverope"},
     ]
-    assert_equal expected, Menuizer.menu(:namespace).items.map{|i| _to_h(i,[:icon])}
+    assert_equal expected, Menuizer.menu(namespace).items.map{|i| _to_h(i,[:icon])}
   end
 end
