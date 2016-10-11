@@ -5,27 +5,19 @@ require "menuizer/menu/item"
 module Menuizer
   class << self
     def configure(namespace=nil)
-      yield (config[namespace] ||= OpenStruct.new)
+      yield config_for_namespace(namespace)
     end
     def menu(namespace=nil)
-      Menu.new(namespace).tap{|menu|
-        c = config[namespace]
-        if c.respond_to?(:converter)
-          c.converter.each do |key,block|
-            menu.set_converter key, &block
-          end
-        end
-        if c.respond_to?(:file_path) && path = c.file_path
-          require "yaml"
-          menu.load YAML.load_file(path)
-        end
-      }
+      Menu.new namespace, config_for_namespace(namespace)
     end
 
     private
 
       def config
         @config ||= {}
+      end
+      def config_for_namespace(namespace)
+        config[namespace] ||= OpenStruct.new
       end
   end
 end

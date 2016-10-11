@@ -11,3 +11,5 @@
       children:
         - item: nested items
           path: :path_to_somewhere
+    - items: :items
+- items: :items

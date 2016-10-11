@@ -1,16 +1,35 @@
 class Menuizer::Menu
-  def initialize(namespace)
-    if namespace
+  def initialize(namespace,config)
+    @config = config
+    @parent = nil
+
+    @namespace = namespace
+    if @namespace
       @namespace = "#{namespace}_"
       item_class = :"Item_#{namespace}"
-      if self.class.const_defined?(item_class)
-        @item_class = self.class.const_get(item_class)
-      else
-        @item_class = self.class.const_set(item_class, Class.new(Item))
-      end
     else
-      @namespace = nil
-      @item_class = Item
+      item_class = :ItemDefault
+    end
+
+    if self.class.const_defined?(item_class)
+      @item_class = self.class.const_get(item_class)
+    else
+      @item_class = self.class.const_set(item_class, Class.new(Item))
+
+      if converter = @config.converter
+        @item_class.instance_eval do
+          converter.each do |key,block|
+            define_method key do
+              block.call @opts[key], @opts
+            end
+          end
+        end
+      end
+    end
+
+    if path = @config.file_path
+      require "yaml"
+      load_data YAML.load_file(path)
     end
   end
 
@@ -26,11 +45,11 @@ class Menuizer::Menu
     end
   end
   def active_item
-    @active_item
+    @active_item ||= nil
   end
   def active_items
     result = []
-    item = @active_item
+    item = active_item
     while item
       result << item
       item = item.parent
@@ -38,33 +57,29 @@ class Menuizer::Menu
     result.reverse
   end
 
-  def set_converter(key,&block)
-    @item_class.class_eval do
-      define_method key do
-        block.call @opts[key], @opts
-      end
-    end
-  end
-
-  def load(data)
-    return unless data.respond_to?(:each)
-    data.each do |item|
-      if item.respond_to?(:map) && item.respond_to?(:delete)
-        item = item.map{|k,v| [k.to_sym,v]}.to_h
-        if title = item.delete(:header)
-          add_header title
-        else
-          add_item item.delete(:item), item
-        end
-      end
-    end
-  end
-
   def items
     @items ||= []
   end
 
   private
+
+    def load_data(data)
+      return unless data.respond_to?(:each)
+      data.each do |item|
+        if item.respond_to?(:map)
+          item = item.map{|k,v| [k.to_sym,v]}.to_h
+          if title = item.delete(:header)
+            add_header title
+          elsif items = item.delete(:items)
+            if generator = @config.generator[items]
+              load_data generator.call
+            end
+          else
+            add_item item.delete(:item), item
+          end
+        end
+      end
+    end
 
     def add_header(title)
       current << @item_class.new(
@@ -100,7 +115,7 @@ class Menuizer::Menu
           **opts,
         )
         @current = item.children
-        self.load children
+        load_data children
         @current, @parent = parents, owner
         current << item
       end

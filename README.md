@@ -139,7 +139,37 @@ end
 <% end %>
 ```
 
+## Generators
+
+Generate menu items by ruby code:
+
+```ruby
+# config/initializers/menuizer.rb
+Menuizer.configure do |config|
+  ...
+  config.generator = {
+    generate_items: ->{
+      [
+        {item: "generate item1"},
+        {item: "generate item2"},
+      ]
+    },
+  }
+end
+```
+
+```yaml
+# config/menuizer.yml
+- header: MAIN NAVIGATION
+- items: :generate_items
+# =>
+# - item: generate item1
+# - item: generate item2
+```
+
 ## Converters
+
+Convert menu item's property:
 
 ```ruby
 # config/initializers/menuizer.rb
@@ -159,7 +189,7 @@ end
 
 ```ruby
 menuizer.items.each do |item|
-  item.icon #=> call converter
+  item.icon #=> "fa fa-circle-o" <= converter[:icon].call(icon,opts)
 end
 ```
 
@@ -184,7 +214,7 @@ opts: all key-value hash
 * convert `:"#{namespace}#{model.model_name.plural}"` if title respond to `model_name.plural`
 * or, leave `nil`
 
-**what namespace is?**
+**what is namespace?**
 
 ↓↓↓
 
