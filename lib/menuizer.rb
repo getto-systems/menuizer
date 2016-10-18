@@ -7,8 +7,8 @@ module Menuizer
     def configure(namespace=nil)
       yield config_for_namespace(namespace)
     end
-    def menu(namespace=nil)
-      Menu.new namespace, config_for_namespace(namespace)
+    def menu(namespace=nil, **data)
+      Menu.new namespace, config_for_namespace(namespace), data
     end
 
     private

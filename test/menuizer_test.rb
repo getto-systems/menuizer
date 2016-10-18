@@ -45,7 +45,12 @@ class MenuizerTest < Minitest::Test
               {item: "items menu item3"},
             ]},
           ]
-        }
+        },
+        with_data: ->(menu){
+          [
+            {item: menu.data[:with_data_title]},
+          ]
+        },
       }
     end
   end
@@ -55,7 +60,7 @@ class MenuizerTest < Minitest::Test
   end
 
   def test_build_menues
-    menu = Menuizer.menu
+    menu = Menuizer.menu(with_data_title: "with_data title")
     expected = [
       {type: :header, title: "MAIN NAVIGATION"},
       {type: :tree, title: "Dashboard", children: [
@@ -76,6 +81,7 @@ class MenuizerTest < Minitest::Test
       {type: :tree, title: "items menu item2", children: [
         {type: :item, title: "items menu item3"},
       ]},
+      {type: :item, title: "with_data title"},
     ]
     assert_equal expected, menu.items.map{|i| _to_h(i)}
     assert_equal expected[2], _to_h(menu.item(:"MenuizerTest::Widget"))
