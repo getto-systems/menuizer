@@ -71,6 +71,7 @@ class ApplicationController < ActionController::Base
 
     def set_menuizer
       @menuizer = Menuizer.menu
+      @menuizer.data[:request] = request
     end
     helper_method def menuizer
       @menuizer
@@ -154,7 +155,7 @@ Generate menu items by ruby code:
 Menuizer.configure do |config|
   ...
   config.generator = {
-    generate_items: ->{
+    generate_items: ->(menu){
       [
         {item: "generate item1"},
         {item: "generate item2"},

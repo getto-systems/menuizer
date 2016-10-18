@@ -38,7 +38,7 @@ class MenuizerTest < Minitest::Test
     Menuizer.configure do |config|
       config.file_path = File.expand_path("../config.yml", __FILE__)
       config.generator = {
-        items: ->{
+        items: ->(menu){
           [
             {item: "items menu item1"},
             {item: "items menu item2",children:[
