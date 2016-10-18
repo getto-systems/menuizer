@@ -1,6 +1,9 @@
 class Menuizer::Menu
-  def initialize(namespace,config)
+  attr_reader :data
+
+  def initialize(namespace,config,data)
     @config = config
+    @data = data
     @parent = nil
 
     @namespace = namespace
@@ -31,10 +34,6 @@ class Menuizer::Menu
       require "yaml"
       load_data YAML.load_file(path)
     end
-  end
-
-  def data
-    @data ||= {}
   end
 
   def activate(key)
