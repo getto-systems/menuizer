@@ -33,6 +33,10 @@ class Menuizer::Menu
     end
   end
 
+  def data
+    @data ||= {}
+  end
+
   def activate(key)
     active_items.each do |item|
       item.is_active = false
@@ -76,7 +80,7 @@ class Menuizer::Menu
             add_header title
           elsif items = item.delete(:items)
             if generator = @config.generator[items]
-              load_data generator.call
+              load_data generator.call(self)
             end
           else
             add_item item.delete(:item), item
