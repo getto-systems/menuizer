@@ -139,6 +139,12 @@ end
 <% end %>
 ```
 
+### get item
+
+```ruby
+menuizer.item(:Widget) #=> menu item
+```
+
 ## Generators
 
 Generate menu items by ruby code:
