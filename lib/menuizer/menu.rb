@@ -57,6 +57,10 @@ class Menuizer::Menu
     result.reverse
   end
 
+  def item(key)
+    map[key]
+  end
+
   def items
     @items ||= []
   end
@@ -91,34 +95,34 @@ class Menuizer::Menu
     def add_item(title, opts)
       model = to_model title
 
-      unless children = opts.delete(:children)
-        item = @item_class.new(
-          type: :item,
+      props = {
           parent: @parent,
           namespace: @namespace,
           title: title,
           model: model,
+      }
+
+      unless children = opts.delete(:children)
+        item = @item_class.new(
           **opts,
+          type: :item,
+          **props,
         )
-        map[title] = item
-        current << item
       else
-        owner = @parent
-        parents = @current
-        item = @parent = @item_class.new(
+        item = @item_class.new(
+          **opts,
           type: :tree,
           children: [],
-          parent: owner,
-          namespace: @namespace,
-          title: title,
-          model: model,
-          **opts,
+          **props,
         )
-        @current = item.children
+        parents, owner = @current, @parent
+        @current, @parent = item.children, item
         load_data children
         @current, @parent = parents, owner
-        current << item
       end
+
+      current << item
+      map[title] = item
     end
     def to_model(title)
       return unless title.is_a?(Symbol)
