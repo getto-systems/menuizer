@@ -78,6 +78,8 @@ class MenuizerTest < Minitest::Test
       ]},
     ]
     assert_equal expected, menu.items.map{|i| _to_h(i)}
+    assert_equal expected[2], _to_h(menu.item(:"MenuizerTest::Widget"))
+    assert_equal expected[3], _to_h(menu.item("tree menu"))
   end
   def test_activate
     menu = Menuizer.menu
