@@ -12,20 +12,18 @@ class Menuizer::Menu::Item < OpenStruct
     end
   end
   def path
-    if path = @opts[:path]
+    unless path = @opts[:path]
+      case item
+      when Symbol
+        path = [item.to_s.pluralize.to_sym]
+      end
+    end
+
+    if path
       if namespace
         [namespace[0..-2].to_sym,*path]
       else
         path
-      end
-    else
-      case item
-      when Symbol
-        if namespace
-          [namespace[0..-2].to_sym,item]
-        else
-          [item]
-        end
       end
     end
   end

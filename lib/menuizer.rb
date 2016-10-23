@@ -1,4 +1,5 @@
 require "i18n"
+require "active_support/inflector"
 
 require "menuizer/version"
 require "menuizer/menu"
