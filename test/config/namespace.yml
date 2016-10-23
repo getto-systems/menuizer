@@ -1,5 +1,5 @@
 - item: widget
-- item: menu
+- item: :menu
   icon: enverope
   path:
     - :path

@@ -1,6 +1,8 @@
 ja:
   menuizer:
     nested_item: nested item title
+  namespace_menuizer:
+    menu: namespace menu item title
   activerecord:
     models:
       widget: Widget Title
