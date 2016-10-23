@@ -241,7 +241,7 @@ I18n.translate "menuizer.#{item}", defaults: ["activerecord.models.#{item}","#{i
 
 **path**
 
-if not specified, and item is symbol: `[namespace,item]`
+if not specified, and item is symbol: `[namespace,item.to_s.pluralize.to_sym]`
 
 **what is namespace?**
 
