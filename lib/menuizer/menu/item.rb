@@ -5,23 +5,27 @@ class Menuizer::Menu::Item < OpenStruct
   end
 
   def title
-    if model && model.model_name.respond_to?(:human)
-      model.model_name.human
-    else
+    if title = @opts[:title]
       @opts[:title]
+    else
+      I18n.translate :"menuizer.#{item}", default: [:"activerecord.models.#{item}", "#{item}"]
     end
   end
   def path
     if path = @opts[:path]
-      if path.respond_to?(:unshift)
-        if namespace
-          path = [namespace[0..-2].to_sym,*path]
-        end
+      if namespace
+        [namespace[0..-2].to_sym,*path]
+      else
+        path
       end
-      path
     else
-      if model && model.model_name.respond_to?(:plural)
-        :"#{namespace}#{model.model_name.plural}"
+      case item
+      when Symbol
+        if namespace
+          [namespace[0..-2].to_sym,item]
+        else
+          [item]
+        end
       end
     end
   end

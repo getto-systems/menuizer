@@ -27,6 +27,7 @@ Or install it yourself as:
 # config/initializers/menuizer.rb
 Menuizer.configure do |config|
   config.file_path = Rails.root.join("config/menuizer.yml")
+  config.cache = Rails.env.production? # cache yml
 end
 ```
 
@@ -34,31 +35,33 @@ end
 # config/menuizer.yml
 - header: MAIN NAVIGATION
 - item: Dashboard
+  path:
+    - :root
   icon: fa fa-dashboard
   children: 
     - item: Dashboard v1
       icon: fa fa-circle-o
+      path:
+        - :dashboard1
     - item: Dashboard v2
       icon: fa fa-circle-o
+      path:
+        - :dashboard2
 
-- item: :Widget
+- item: :widgets
   icon: fa fa-th
 
 - item: Settings
   icon: fa fa-cog
   children:
-    - item: :Admin
+    - item: :admins
       icon: fa fa-circle-o
-    - item: :User
+    - item: :users
       icon: fa fa-circle-o
-      notice:
-        class: :User
-        method: :main_menu_notices
 
   - item: nested
     children:
       - item: nested item
-        path: :path_to_somewhere
         icon: fa fa-circle-o
 ```
 
@@ -83,7 +86,7 @@ end
 
 ```erb
 <%# app/views/admins/index.html.erb %>
-<% menuizer.activate :Admin # item's value %>
+<% menuizer.activate :admins # item's value %>
 <% content_for :title do %><%= menuizer.active_item.try(:title) %><% end %>
 
 ...
@@ -117,12 +120,6 @@ end
   <li class="<% if item.is_active %>active<% end %>">
   <%= link_to item.path || "#" do %>
     <i class="<%= item.icon %>"></i> <span><%= item.title %></span>
-    <% if item.notices.present? %>
-      <% item.notices.each do |notice| %>
-        <% type, text = notice.call %>
-        <span class="label label-<%= type %> pull-right"><%= text %></span>
-      <% end %>
-    <% end %>
   <% end %>
   </li>
 <% else %>
@@ -145,7 +142,7 @@ end
 ### get item
 
 ```ruby
-menuizer.item(:Widget) #=> menu item
+menuizer.item(:widgets) #=> menu item
 ```
 
 ## Generators
@@ -206,22 +203,19 @@ icon, opts is yaml's original value
 opts: all key-value hash
 
 
-### convert `model`
+### auto converters
 
-* set `:model` key if title is `Symbol` and respond to `model_name` ( ActiveRecord )
+**title**
 
+if not specified, translate by i18n:
 
-### convert `title`
+```ruby
+I18n.translate "menuizer.#{item}", defaults: ["activerecord.models.#{item}","#{item}"
+```
 
-* convert `model.model_name.human` if model respond to `model_name.huuman`
-* or, leave `title`
+**path**
 
-
-### convert `path`
-
-* leave `path` if not `nil`
-* convert `:"#{namespace}#{model.model_name.plural}"` if title respond to `model_name.plural`
-* or, leave `nil`
+if not specified, and item is symbol: `[namespace,item]`
 
 **what is namespace?**
 
@@ -241,7 +235,7 @@ end
 ```yaml
 # config/menuizer/namespace.yml
 - header: NAMESPACE MENU
-- item: :Admin
+- item: :admins
 ```
 
 ```ruby

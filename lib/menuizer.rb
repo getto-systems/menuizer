@@ -1,3 +1,5 @@
+require "i18n"
+
 require "menuizer/version"
 require "menuizer/menu"
 require "menuizer/menu/item"
