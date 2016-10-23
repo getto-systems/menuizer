@@ -74,7 +74,7 @@ class ApplicationController < ActionController::Base
 
     def set_menuizer
       @menuizer = Menuizer.menu
-      # or, pass data
+      # or
       # @menuizer = Menuizer.menu(request: request)
       # @menuizer.data[:request] #=> request
     end
