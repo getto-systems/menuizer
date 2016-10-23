@@ -199,8 +199,7 @@ menuizer.items.each do |item|
 end
 ```
 
-icon, opts is yaml's original value  
-opts: all key-value hash
+opts: item's yml data
 
 
 ### auto converters
