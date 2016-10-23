@@ -8,7 +8,7 @@ class Menuizer::Menu::Item < OpenStruct
     if title = @opts[:title]
       @opts[:title]
     else
-      I18n.translate :"menuizer.#{item}", default: [:"activerecord.models.#{item}", "#{item}"]
+      I18n.translate :"#{namespace}menuizer.#{item}", default: [:"activerecord.models.#{item}", "#{item}"]
     end
   end
   def path

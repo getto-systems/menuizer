@@ -262,6 +262,14 @@ end
 # config/menuizer/namespace.yml
 - header: NAMESPACE MENU
 - item: :admin
+- item: :menu
+```
+
+```yaml
+# config/locales/menuizer.ja.yml
+ja:
+  namespace_menuier:
+    menu: title
 ```
 
 ```ruby
