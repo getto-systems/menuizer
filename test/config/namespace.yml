@@ -1,4 +1,4 @@
-- item: :MenuizerTest::Widget
+- item: widget
 - item: menu
   icon: enverope
   path:

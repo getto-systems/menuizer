@@ -1,0 +1,6 @@
+ja:
+  menuizer:
+    nested_item: nested item title
+  activerecord:
+    models:
+      widget: Widget Title

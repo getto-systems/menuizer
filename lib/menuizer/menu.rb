@@ -32,7 +32,12 @@ class Menuizer::Menu
 
     if path = @config.file_path
       require "yaml"
-      load_data YAML.load_file(path)
+      if @config.cache
+        yml = @config.yml ||= YAML.load_file(path)
+      else
+        yml = YAML.load_file(path)
+      end
+      load_data yml
     end
   end
 
@@ -75,8 +80,8 @@ class Menuizer::Menu
       data.each do |item|
         if item.respond_to?(:map)
           item = item.map{|k,v| [k.to_sym,v]}.to_h
-          if title = item.delete(:header)
-            add_header title
+          if header = item.delete(:header)
+            add_header header
           elsif items = item.delete(:items)
             if generator = @config.generator[items]
               load_data generator.call(self)
@@ -88,55 +93,41 @@ class Menuizer::Menu
       end
     end
 
-    def add_header(title)
+    def add_header(header)
       current << @item_class.new(
         type: :header,
         namespace: @namespace,
-        title: title,
+        title: header,
       )
     end
-    def add_item(title, opts)
-      model = to_model title
-
+    def add_item(item, opts)
       props = {
-          parent: @parent,
-          namespace: @namespace,
-          title: title,
-          model: model,
+        parent: @parent,
+        namespace: @namespace,
+        item: item,
       }
 
       unless children = opts.delete(:children)
-        item = @item_class.new(
+        instance = @item_class.new(
           **opts,
           type: :item,
           **props,
         )
       else
-        item = @item_class.new(
+        instance = @item_class.new(
           **opts,
           type: :tree,
           children: [],
           **props,
         )
         parents, owner = @current, @parent
-        @current, @parent = item.children, item
+        @current, @parent = instance.children, instance
         load_data children
         @current, @parent = parents, owner
       end
 
-      current << item
-      map[title] = item
-    end
-    def to_model(title)
-      return unless title.is_a?(Symbol)
-      parent = Object
-      title.to_s.split("::").each do |tip|
-        return unless parent.const_defined?(tip)
-        parent = parent.const_get(tip)
-      end
-      if parent.respond_to?(:model_name)
-        parent
-      end
+      current << instance
+      map[item] = instance
     end
 
     def current

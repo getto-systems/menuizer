@@ -1,12 +1,6 @@
 require 'test_helper'
 
 class MenuizerTest < Minitest::Test
-  class Widget
-    def self.model_name
-      OpenStruct.new(human: "human Widget name", plural: "widgets")
-    end
-  end
-
   def _to_h(item,converters=[])
     return unless item
     h = item.to_h
@@ -34,6 +28,10 @@ class MenuizerTest < Minitest::Test
   end
 
   def setup
+    ::I18n.load_path = Dir[File.expand_path("../locales/*.yml",__FILE__)]
+    ::I18n.default_locale = :ja
+    ::I18n.backend.load_translations
+
     Menuizer.send(:config).clear
     Menuizer.configure do |config|
       config.file_path = File.expand_path("../config.yml", __FILE__)
@@ -63,50 +61,50 @@ class MenuizerTest < Minitest::Test
     menu = Menuizer.menu(with_data_title: "with_data title")
     expected = [
       {type: :header, title: "MAIN NAVIGATION"},
-      {type: :tree, title: "Dashboard", children: [
-        {type: :item, title: "Dashboard v1"},
-        {type: :item, title: "Dashboard v2"},
+      {type: :tree, item: "Dashboard", title: "Dashboard", children: [
+        {type: :item, item: "Dashboard v1", title: "Dashboard v1"},
+        {type: :item, item: "Dashboard v2", title: "Dashboard v2"},
       ]},
-      {type: :item, icon: "fa fa-th", title: "human Widget name", path: :widgets},
-      {type: :tree, title: "tree menu", children: [
-        {type: :tree, title: "nested menu", children: [
-          {type: :item, title: "nested items", path: :path_to_somewhere},
+      {type: :item, item: "widget", icon: "fa fa-th", title: "Widget Title"},
+      {type: :tree, item: "tree menu", title: "tree menu", children: [
+        {type: :tree, item: "nested menu", title: "nested menu", children: [
+          {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item]},
         ]},
-        {type: :item, title: "items menu item1"},
-        {type: :tree, title: "items menu item2", children: [
-          {type: :item, title: "items menu item3"},
+        {type: :item, item: "items menu item1", title: "items menu item1"},
+        {type: :tree, item: "items menu item2", title: "items menu item2", children: [
+          {type: :item, item: "items menu item3", title: "items menu item3"},
         ]},
       ]},
-      {type: :item, title: "items menu item1"},
-      {type: :tree, title: "items menu item2", children: [
-        {type: :item, title: "items menu item3"},
+      {type: :item, item: "items menu item1", title: "items menu item1"},
+      {type: :tree, item: "items menu item2", title: "items menu item2", children: [
+        {type: :item, item: "items menu item3", title: "items menu item3"},
       ]},
-      {type: :item, title: "with_data title"},
+      {type: :item, item: "with_data title", title: "with_data title"},
     ]
     assert_equal expected, menu.items.map{|i| _to_h(i)}
-    assert_equal expected[2], _to_h(menu.item(:"MenuizerTest::Widget"))
+    assert_equal expected[2], _to_h(menu.item("widget"))
     assert_equal expected[3], _to_h(menu.item("tree menu"))
   end
   def test_activate
     menu = Menuizer.menu
-    menu.activate "nested items"
-    expected = {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true}
+    menu.activate :nested_item
+    expected = {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true}
     assert_equal expected, _to_h(menu.active_item)
 
     expected = [
-      {type: :tree, title: "tree menu", children: [
-        {type: :tree, title: "nested menu", children: [
-          {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
+      {type: :tree, item: "tree menu", title: "tree menu", children: [
+        {type: :tree, item: "nested menu", title: "nested menu", children: [
+          {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true},
         ], is_active: true},
-        {type: :item, title: "items menu item1"},
-        {type: :tree, title: "items menu item2", children: [
-          {type: :item, title: "items menu item3"},
+        {type: :item, item: "items menu item1", title: "items menu item1"},
+        {type: :tree, item: "items menu item2", title: "items menu item2", children: [
+          {type: :item, item: "items menu item3", title: "items menu item3"},
         ]},
       ], is_active: true},
-      {type: :tree, title: "nested menu", children: [
-        {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
+      {type: :tree, item: "nested menu", title: "nested menu", children: [
+        {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true},
       ], is_active: true},
-      {type: :item, title: "nested items", path: :path_to_somewhere, is_active: true},
+      {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true},
     ]
     assert_equal expected, menu.active_items.map{|i| _to_h(i)}
   end
@@ -130,8 +128,8 @@ class MenuizerTest < Minitest::Test
     assert_kind_of Menuizer::Menu.const_get(:"Item_#{namespace}"), Menuizer.menu(namespace).items.first
 
     expected = [
-      {type: :item, title: "human Widget name", path: :"#{namespace}_widgets", icon: "fa fa-circle-o"},
-      {type: :item, title: "menu", path: [namespace,:path,:to,:enverope], icon: "fa fa-enverope"},
+      {type: :item, item: "widget", title: "Widget Title", icon: "fa fa-circle-o"},
+      {type: :item, item: "menu", title: "menu", path: [namespace,:path,:to,:enverope], icon: "fa fa-enverope"},
     ]
     menu = Menuizer.menu(namespace)
     assert_equal expected, menu.items.map{|i| _to_h(i,[:icon])}
