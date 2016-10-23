@@ -68,7 +68,7 @@ class MenuizerTest < Minitest::Test
       {type: :item, item: "widget", icon: "fa fa-th", title: "Widget Title"},
       {type: :tree, item: "tree menu", title: "tree menu", children: [
         {type: :tree, item: "nested menu", title: "nested menu", children: [
-          {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item]},
+          {type: :item, item: :nested_item, title: "nested item title", path: [:nested_items]},
         ]},
         {type: :item, item: "items menu item1", title: "items menu item1"},
         {type: :tree, item: "items menu item2", title: "items menu item2", children: [
@@ -88,13 +88,13 @@ class MenuizerTest < Minitest::Test
   def test_activate
     menu = Menuizer.menu
     menu.activate :nested_item
-    expected = {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true}
+    expected = {type: :item, item: :nested_item, title: "nested item title", path: [:nested_items], is_active: true}
     assert_equal expected, _to_h(menu.active_item)
 
     expected = [
       {type: :tree, item: "tree menu", title: "tree menu", children: [
         {type: :tree, item: "nested menu", title: "nested menu", children: [
-          {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true},
+          {type: :item, item: :nested_item, title: "nested item title", path: [:nested_items], is_active: true},
         ], is_active: true},
         {type: :item, item: "items menu item1", title: "items menu item1"},
         {type: :tree, item: "items menu item2", title: "items menu item2", children: [
@@ -102,9 +102,9 @@ class MenuizerTest < Minitest::Test
         ]},
       ], is_active: true},
       {type: :tree, item: "nested menu", title: "nested menu", children: [
-        {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true},
+        {type: :item, item: :nested_item, title: "nested item title", path: [:nested_items], is_active: true},
       ], is_active: true},
-      {type: :item, item: :nested_item, title: "nested item title", path: [:nested_item], is_active: true},
+      {type: :item, item: :nested_item, title: "nested item title", path: [:nested_items], is_active: true},
     ]
     assert_equal expected, menu.active_items.map{|i| _to_h(i)}
   end
