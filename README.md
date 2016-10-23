@@ -54,9 +54,9 @@ end
 - item: Settings
   icon: fa fa-cog
   children:
-    - item: :admins
+    - item: :admin
       icon: fa fa-circle-o
-    - item: :users
+    - item: :user
       icon: fa fa-circle-o
 
   - item: nested
@@ -86,7 +86,7 @@ end
 
 ```erb
 <%# app/views/admins/index.html.erb %>
-<% menuizer.activate :admins # item's value %>
+<% menuizer.activate :admin # item's value %>
 <% content_for :title do %><%= menuizer.active_item.try(:title) %><% end %>
 
 ...
@@ -142,7 +142,30 @@ end
 ### get item
 
 ```ruby
-menuizer.item(:widgets) #=> menu item
+menuizer.item(:admin) #=> menu item
+```
+
+### short cut
+
+```yaml
+- item: :admin
+# =>
+# path:
+#   - :admins
+```
+
+(auto convert path)
+
+## i18n
+
+```yaml
+ja:
+  menuizer:
+    admin: Admin Title
+  # or
+  activerecord:
+    models:
+      admin: Admin Title
 ```
 
 ## Generators
@@ -181,10 +204,12 @@ Convert menu item's property:
 # config/initializers/menuizer.rb
 Menuizer.configure do |config|
   config.converter = {
-    icon: ->(icon,opts){
+    icon: ->(value,opts){
+      # value : item.#{key} value
+      # opts  : item yml data
       case
-      when icon.blank? || icon.starts_with?("fa") then icon
-      when icon then "fa fa-#{icon}"
+      when value.blank? || value.starts_with?("fa") then value
+      when value then "fa fa-#{value}"
       else
         "fa fa-circle-o"
       end
@@ -193,14 +218,16 @@ Menuizer.configure do |config|
 end
 ```
 
-```ruby
-menuizer.items.each do |item|
-  item.icon #=> "fa fa-circle-o" <= converter[:icon].call(icon,opts)
-end
+```yaml
+- item: no icon
+- item: enverope
+  icon: enverope
 ```
 
-opts: item's yml data
-
+```ruby
+menuizer.item("no icon").icon  # => "fa fa-circle-o"
+menuizer.item("envelope").icon # => "fa fa-envelope"
+```
 
 ### auto converters
 
@@ -234,7 +261,7 @@ end
 ```yaml
 # config/menuizer/namespace.yml
 - header: NAMESPACE MENU
-- item: :admins
+- item: :admin
 ```
 
 ```ruby
