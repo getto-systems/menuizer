@@ -110,6 +110,7 @@ end
 ```
 
 ```erb
+<%# app/views/application/_menu.html.erb %>
 <%
   item # menuizer.items's item
 %>
@@ -132,7 +133,7 @@ end
     </a>
     <ul class="treeview-menu">
       <% item.children.each do |item| %>
-        <%= render "layouts/manage/menu", item: item %>
+        <%= render "menu", item: item %>
       <% end %>
     </ul>
   </li>
