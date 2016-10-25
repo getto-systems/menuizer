@@ -207,7 +207,7 @@ Menuizer.configure do |config|
       # value : item.#{key} value
       # opts  : item yml data
       case
-      when !icon then "fa fa-circle-o"
+      when !value then "fa fa-circle-o"
       when value.to_s.blank? || value.to_s.starts_with?("fa") then value
       else "fa fa-#{value}"
       end
