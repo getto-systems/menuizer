@@ -234,7 +234,7 @@ menuizer.item("envelope").icon # => "fa fa-envelope"
 if not specified, translate by i18n:
 
 ```ruby
-I18n.translate "menuizer.#{item}", defaults: ["activerecord.models.#{item}","#{item}"
+I18n.translate "menuizer.#{item}", defaults: [:"activerecord.models.#{item}","#{item}"]
 ```
 
 **path**
