@@ -102,9 +102,7 @@ end
 <%# app/views/layouts/application.html.erb %>
 ...
 <ul class="sidebar-menu">
-  <% menuizer.items.each do |item| %>
-    <%= render "menu", item: item %>
-  <% end %>
+  <%= render "menu", items: menuizer.items %>
 </ul>
 ...
 ```
@@ -112,31 +110,33 @@ end
 ```erb
 <%# app/views/application/_menu.html.erb %>
 <%
-  item # menuizer.items's item
+  items # menuizer.items
 %>
-<% case item.type %>
-<% when :header %>
-  <li class="header"><%= item.title %></li>
-<% when :item %>
-  <li class="<% if item.is_active %>active<% end %>">
-  <%= link_to item.path || "#" do %>
-    <i class="<%= item.icon %>"></i> <span><%= item.title %></span>
-  <% end %>
-  </li>
-<% else %>
-  <li class="<% if item.is_active %>active <% end %>treeview">
-    <a href="#">
+<% items.each do |item| %>
+  <% case item.type %>
+  <% when :header %>
+    <li class="header"><%= item.title %></li>
+  <% when :item %>
+    <li class="<% if item.is_active %>active<% end %>">
+    <%= link_to item.path || "#" do %>
       <i class="<%= item.icon %>"></i> <span><%= item.title %></span>
-      <span class="pull-right-container">
-        <i class="fa fa-angle-left pull-right"></i>
-      </span>
-    </a>
-    <ul class="treeview-menu">
-      <% item.children.each do |item| %>
-        <%= render "menu", item: item %>
-      <% end %>
-    </ul>
-  </li>
+    <% end %>
+    </li>
+  <% else %>
+    <li class="<% if item.is_active %>active <% end %>treeview">
+      <a href="#">
+        <i class="<%= item.icon %>"></i> <span><%= item.title %></span>
+        <span class="pull-right-container">
+          <i class="fa fa-angle-left pull-right"></i>
+        </span>
+      </a>
+      <ul class="treeview-menu">
+        <% item.children.each do |item| %>
+          <%= render "menu", item: item %>
+        <% end %>
+      </ul>
+    </li>
+  <% end %>
 <% end %>
 ```
 
