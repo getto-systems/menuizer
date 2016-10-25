@@ -131,9 +131,7 @@ end
         </span>
       </a>
       <ul class="treeview-menu">
-        <% item.children.each do |item| %>
-          <%= render "menu", item: item %>
-        <% end %>
+        <%= render "menu", items: item.children %>
       </ul>
     </li>
   <% end %>
