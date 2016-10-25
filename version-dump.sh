@@ -8,6 +8,7 @@ if [ -z "$mode" ]; then
 fi
 
 version_file=version.txt
+version_rb=lib/menuizer/version.rb
 current_version=$(cat $version_file)
 
 git fetch --tags
@@ -30,7 +31,8 @@ read -p "dump version: $version. OK? [Y/n] " confirm
 case $confirm in
   Y*|y*)
     echo $version > $version_file
-    git add $version_file && git commit -m "version dump: $version"
+    sed -i 's/VERSION.*/VERSION = "'$version'"/' $version_rb
+    git add $version_file $version_rb && git commit -m "version dump: $version"
     ;;
   *)
     exit 1
