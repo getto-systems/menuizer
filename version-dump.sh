@@ -7,15 +7,17 @@ if [ -z "$mode" ]; then
   mode=patch
 fi
 
-version_file=version.txt
-version_rb=lib/menuizer/version.rb
-current_version=$(cat $version_file)
+version_rb=lib/labelizer/version.rb
+
+release_version_prefix="version dump: "
+current_version=$(git log --format="%s" --grep="$release_version_prefix" | head -1)
+current_version=${current_version#$release_version_prefix}
 
 git fetch --tags
 current_tag=$(git tag | tail -1)
 
 if [ "v$current_version" != "$current_tag" ]; then
-  read -p "file: '$current_version', tag: '$current_tag'. continue? [Y/n] " confirm
+  read -p "curent: '$current_version', tag: '$current_tag'. continue? [Y/n] " confirm
   case $confirm in
     Y*|y*)
       ;;
@@ -25,14 +27,13 @@ if [ "v$current_version" != "$current_tag" ]; then
   esac
 fi
 
-version_build_next "$mode" $(cat $version_file)
+version_build_next "$mode" $current_version
 
 read -p "dump version: $version. OK? [Y/n] " confirm
 case $confirm in
   Y*|y*)
-    echo $version > $version_file
     sed -i 's/VERSION.*/VERSION = "'$version'"/' $version_rb
-    git add $version_file $version_rb && git commit -m "version dump: $version"
+    git add $version_rb && git commit -m "version dump: $version"
     ;;
   *)
     exit 1
